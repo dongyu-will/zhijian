@@ -10,11 +10,11 @@ const catalogBooks = await getAllBooks();
 const books = [...catalogBooks].sort((a, b) => a.catalog.title.localeCompare(b.catalog.title, 'zh-CN'));
 const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<ReaderLayout title="公共资料库 · 串联各书的知识" description="从完整阅读出发，逐步串联不同书籍中的知识点，建立自己的理解。">
+<ReaderLayout title="知间 · 串联各书的知识" description="从完整阅读出发，逐步串联不同书籍中的知识点，建立自己的理解。">
   <main class="catalog-home">
     <a class="catalog-skip" href="#catalog-library">跳到资料列表</a>
     <header class="catalog-masthead">
-      <a class="catalog-brand" href={`${siteBase}/`} aria-label="公共资料库首页"><BookOpen size={22} stroke-width={1.8} aria-hidden="true" /><span>公共资料库</span></a>
+      <a class="catalog-brand" href={`${siteBase}/`} aria-label="知间首页"><BookOpen size={22} stroke-width={1.8} aria-hidden="true" /><span>知间</span></a>
       <nav aria-label="首页导航">
         <a href="#catalog-library">浏览资料</a>
         <a href="#catalog-about">关于与共建<ArrowUpRight size={15} aria-hidden="true" /></a>
@@ -85,7 +85,7 @@ const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
         <strong>查看贡献指南<ArrowUpRight size={17} aria-hidden="true" /></strong>
       </a>
     </footer>
-    <div class="catalog-colophon"><a href={`${siteBase}/`}>公共资料库</a><span>保持好奇。持续分享。</span><a href="#catalog-title">回到顶部<ArrowUpRight size={14} aria-hidden="true" /></a></div>
+    <div class="catalog-colophon"><a href={`${siteBase}/`}>知间</a><span>保持好奇。持续分享。</span><a href="#catalog-title">回到顶部<ArrowUpRight size={14} aria-hidden="true" /></a></div>
   </main>
   <script>
     import { resolveReadingLocation } from '../lib/reading-location';

@@ -44,7 +44,7 @@ export type BuiltBook = {
 };
 
 function siteBasePath(): string {
-  return (process.env.PUBLIC_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/studyloom' : '/')).replace(/\/$/, '');
+  return (process.env.PUBLIC_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/zhijian' : '/')).replace(/\/$/, '');
 }
 
 function publicAssetUrl(slug: string, sourcePath: string): string {

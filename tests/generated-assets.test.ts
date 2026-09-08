@@ -6,7 +6,7 @@ import test from 'node:test';
 import { publishGeneratedBookAssets, resetGeneratedBookAssets } from '../src/lib/generated-assets';
 
 test('a new build removes withdrawn book assets and preserves other public files', () => {
-  const root = mkdtempSync(join(tmpdir(), 'studyloom-assets-'));
+  const root = mkdtempSync(join(tmpdir(), 'zhijian-assets-'));
   try {
     const oldBook = join(root, 'public/book-assets/withdrawn');
     mkdirSync(oldBook, { recursive: true });
@@ -22,7 +22,7 @@ test('a new build removes withdrawn book assets and preserves other public files
 });
 
 test('publishing copies newly rendered assets without retaining withdrawn output', () => {
-  const root = mkdtempSync(join(tmpdir(), 'studyloom-publish-'));
+  const root = mkdtempSync(join(tmpdir(), 'zhijian-publish-'));
   const output = join(root, 'dist');
   try {
     mkdirSync(join(root, 'public/book-assets/current'), { recursive: true });

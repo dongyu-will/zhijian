@@ -22,7 +22,7 @@ npm run preview
 
 ## GitHub Pages
 
-目标仓库为 `dongyu-will/studyloom`，默认站点路径为 `/studyloom/`。执行远端步骤前先确认本地改动和构建结果。
+目标仓库为 `dongyu-will/zhijian`，默认站点路径为 `/zhijian/`。执行远端步骤前先确认本地改动和构建结果。
 
 1. 用审核过的首发源码建立干净的 `main`，并将它设为默认分支。旧私有仓库历史曾包含研发截图和临时记录；不要仅删除当前文件就直接公开整段历史。保留原私有历史，远端迁移或清理方式需在正式发布前确定。
 2. 将仓库设为公开，在 Settings → Pages 中选择 GitHub Actions。

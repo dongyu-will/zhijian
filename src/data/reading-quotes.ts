@@ -22,4 +22,4 @@ export const fallbackReadingQuotes: ReadingQuote[] = [
   '把收获写下来，让下一次出发更有方向。',
   '新的视角，往往从一个简单的问题开始。',
   '走过的弯路，也能成为理解世界的线索。'
-].map((text) => ({ text, source: '资料库寄语 · 原创' }));
+].map((text) => ({ text, source: '知间寄语 · 原创' }));

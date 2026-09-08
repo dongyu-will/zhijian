@@ -6,7 +6,7 @@ import test from 'node:test';
 import { buildLocalBook } from '../src/lib/book-builder';
 
 test('bundled Markdown builds with source links and images without a PDF or remote clone', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'studyloom-local-'));
+  const root = mkdtempSync(join(tmpdir(), 'zhijian-local-'));
   const slug = basename(root);
   const assets = resolve('public/book-assets', slug);
   try {
@@ -18,7 +18,7 @@ test('bundled Markdown builds with source links and images without a PDF or remo
     assert.equal(book.sourcePdfUrl, null);
     assert.equal(book.documents.length, 2);
     assert.equal(book.documents[1].sourceUrl, 'https://github.com/example/site/blob/revision/content/notes.md');
-    assert.match(book.documents[1].html, /book-assets\/studyloom-local-[^/]+\/diagram.svg/);
+    assert.match(book.documents[1].html, /book-assets\/zhijian-local-[^/]+\/diagram.svg/);
     assert.equal(existsSync(join(assets, 'diagram.svg')), true);
     assert.equal(readFileSync(join(assets, 'notes.md'), 'utf8').startsWith('# A normal article'), true);
   } finally {

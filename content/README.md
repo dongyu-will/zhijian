@@ -15,4 +15,4 @@
 
 项目根目录的 Apache-2.0 许可证适用于项目代码，不自动适用于本目录的试题、整理文本或其他第三方资料。相关内容的权利归各自权利人所有；本项目不额外授予这些内容的再许可或商业使用权。使用者应自行确认适用的内容授权。
 
-如需纠错或就内容权利联系维护者，请在[项目 Issues](https://github.com/dongyu-will/studyloom/issues)中注明资料、年份、题号和问题。
+如需纠错或就内容权利联系维护者，请在[项目 Issues](https://github.com/dongyu-will/zhijian/issues)中注明资料、年份、题号和问题。

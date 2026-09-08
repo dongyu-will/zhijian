@@ -7,7 +7,7 @@ let projectRoot;
 export default defineConfig({
   output: 'static',
   site: process.env.PUBLIC_SITE_URL || 'https://dongyu-will.github.io',
-  base: process.env.PUBLIC_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/studyloom' : '/'),
+  base: process.env.PUBLIC_BASE_PATH || (process.env.NODE_ENV === 'production' ? '/zhijian' : '/'),
   integrations: [{
     name: 'current-book-assets',
     hooks: {

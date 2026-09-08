@@ -1,4 +1,4 @@
-# Studyloom Knowledge Library
+# 知间 · Zhijian Knowledge Library
 
 A public reading library that aims to connect knowledge across publications while preserving complete, attributable source material.
 

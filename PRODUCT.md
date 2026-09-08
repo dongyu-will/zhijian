@@ -14,7 +14,7 @@ Astro and TypeScript generate a static website. Markdown is the source content; 
 
 **串联各书的知识，建立自己的理解。**
 
-Studyloom aims to connect explanations, examples, and applications of the same knowledge point across different publications, while preserving each publication's complete reading experience. It does not rank books or recommend purchases.
+知间 (Zhijian) aims to connect explanations, examples, and applications of the same knowledge point across different publications, while preserving each publication's complete reading experience. It does not rank books or recommend purchases.
 
 ## Current scope
 

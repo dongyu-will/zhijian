@@ -1,5 +1,5 @@
 {
-  "name": "studyloom",
+  "name": "zhijian",
   "private": true,
   "type": "module",
   "scripts": {
@@ -43,7 +43,7 @@
   "description": "A static Markdown reading library, starting with mathematics exam papers.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dongyu-will/studyloom.git"
+    "url": "https://github.com/dongyu-will/zhijian.git"
   },
   "engines": {
     "node": ">=22.12.0"
