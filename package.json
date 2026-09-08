@@ -39,7 +39,7 @@
     "typescript": "6.0.3"
   },
   "version": "0.1.0",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "description": "A static Markdown reading library, starting with mathematics exam papers.",
   "repository": {
     "type": "git",

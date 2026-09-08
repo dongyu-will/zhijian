@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Astro and TypeScript generate a static website. Markdown is the source content; browser storage keeps reading preferences and the last reading location. GitHub Pages is the initial hosting target. Project code uses Apache-2.0; third-party content has separate rights.
+Astro and TypeScript generate a static website. Markdown is the source content; browser storage keeps reading preferences and the last reading location. GitHub Pages is the initial hosting target. Project code uses MIT; third-party content has separate rights.
 
 ## Purpose
 

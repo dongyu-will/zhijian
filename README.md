@@ -2,6 +2,8 @@
 
 **串联各书的知识，建立自己的理解。**
 
+[在线阅读](https://dongyu-will.github.io/zhijian/)
+
 知间希望让读者从一个知识点出发，找到不同书籍中的解释、例题和应用，看见它们之间的对应与互补。书籍保留完整阅读体验，知识点逐步成为连接不同资料的线索。
 
 目前先做好资料整理与全文阅读，跨书知识点关联尚未实现，是后续建设方向。从数学开始，逐步容纳文章、书籍、讲义、教程等内容，不要求固定的章节结构。
@@ -73,4 +75,4 @@ PUBLIC_BASE_PATH=/ PUBLIC_SITE_URL=https://your-domain.example npm run build
 
 ## 许可证
 
-项目代码采用 [Apache License 2.0](LICENSE)。试题、整理文本及其他第三方资料不自动继承代码许可证，详见[内容来源与权利说明](content/README.md)。
+项目代码采用 [MIT License](LICENSE)。试题、整理文本及其他第三方资料不自动继承代码许可证，详见[内容来源与权利说明](content/README.md)。

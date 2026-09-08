@@ -16,7 +16,7 @@ npm run verify
 
 数学一和数学二整理文本分别位于 `content/math-one-exams/`、`content/math-two-exams/`。请直接修改对应年份 Markdown，在 PR 中说明年份、题号、修正依据。不要根据猜测补写原题或答案。
 
-题目引用的配图随正文维护，原 PDF 暂不公开，不要加入贡献。代码采用 Apache-2.0；内容的权利说明见 [`content/README.md`](content/README.md)。
+题目引用的配图随正文维护，原 PDF 暂不公开，不要加入贡献。代码采用 MIT；内容的权利说明见 [`content/README.md`](content/README.md)。
 
 ## 添加其他资料
 
