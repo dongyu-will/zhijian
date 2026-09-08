@@ -1,0 +1,52 @@
+---
+import { Check, Moon, Settings, Sun, Type, X } from '@lucide/astro';
+---
+<div class="settings-root" data-settings-root>
+  <button class="icon-button settings-trigger" type="button" data-open-settings aria-label="打开阅读设置" aria-expanded="false" title="阅读设置"><Settings size={18} stroke-width={1.8} /></button>
+  <section class="settings-popover" data-settings-popover hidden role="dialog" aria-labelledby="settings-title">
+    <div class="settings-heading"><h2 id="settings-title">阅读设置</h2><button class="icon-button" type="button" data-close-settings aria-label="关闭阅读设置"><X size={17} stroke-width={1.8} /></button></div>
+    <div class="settings-group">
+      <span class="settings-label">主题</span>
+      <div class="settings-options" role="group" aria-label="主题">
+        <button type="button" data-setting-theme="light" aria-pressed="true"><Sun size={15} stroke-width={1.8} />日间</button>
+        <button type="button" data-setting-theme="dark" aria-pressed="false"><Moon size={15} stroke-width={1.8} />夜间</button>
+      </div>
+    </div>
+    <div class="settings-group">
+      <span class="settings-label">字号</span>
+      <div class="settings-options" role="group" aria-label="字号">
+        <button type="button" data-setting-font="small" aria-pressed="false"><Type size={13} stroke-width={1.8} />小</button>
+        <button type="button" data-setting-font="medium" aria-pressed="true"><Type size={15} stroke-width={1.8} />中</button>
+        <button type="button" data-setting-font="large" aria-pressed="false"><Type size={17} stroke-width={1.8} />大</button>
+      </div>
+    </div>
+    <p class="settings-note"><Check size={14} stroke-width={1.8} />选择会自动保存在此设备。</p>
+  </section>
+</div>
+
+<script>
+  const settingsRoot = document.querySelector<HTMLElement>('[data-settings-root]');
+  const settingsPopover = settingsRoot?.querySelector<HTMLElement>('[data-settings-popover]');
+  const settingsTrigger = settingsRoot?.querySelector<HTMLElement>('[data-open-settings]');
+  const storageKeys = { theme: 'wiki-reader-theme', font: 'wiki-reader-font-size' };
+  const applySetting = (name: 'theme' | 'font', value: string) => {
+    document.documentElement.dataset[name === 'font' ? 'fontSize' : 'theme'] = value;
+    settingsRoot?.querySelectorAll<HTMLElement>(`[data-setting-${name}]`).forEach((button) => button.setAttribute('aria-pressed', String(button.dataset[`setting${name[0].toUpperCase()}${name.slice(1)}`] === value)));
+    window.localStorage.setItem(storageKeys[name], value);
+  };
+  const storedTheme = window.localStorage.getItem(storageKeys.theme) ?? 'light';
+  const storedFont = window.localStorage.getItem(storageKeys.font) ?? 'medium';
+  applySetting('theme', storedTheme);
+  applySetting('font', storedFont);
+  const setOpen = (open: boolean) => {
+    if (!settingsPopover || !settingsTrigger) return;
+    settingsPopover.hidden = !open;
+    settingsTrigger.setAttribute('aria-expanded', String(open));
+  };
+  settingsTrigger?.addEventListener('click', () => setOpen(Boolean(settingsPopover?.hidden)));
+  settingsRoot?.querySelector('[data-close-settings]')?.addEventListener('click', () => { setOpen(false); settingsTrigger?.focus(); });
+  settingsRoot?.querySelectorAll<HTMLElement>('[data-setting-theme]').forEach((button) => button.addEventListener('click', () => applySetting('theme', button.dataset.settingTheme ?? 'light')));
+  settingsRoot?.querySelectorAll<HTMLElement>('[data-setting-font]').forEach((button) => button.addEventListener('click', () => applySetting('font', button.dataset.settingFont ?? 'medium')));
+  document.addEventListener('click', (event) => { if (settingsPopover && !settingsPopover.hidden && !settingsRoot?.contains(event.target as Node)) setOpen(false); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && settingsPopover && !settingsPopover.hidden) { setOpen(false); settingsTrigger?.focus(); } });
+</script>

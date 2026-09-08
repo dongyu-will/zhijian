@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.astro/
+.scratch/
+.impeccable/
+tmp/
+design-qa*.png
+design-qa.md
+
+# Build-time assets cloned from active catalog repositories.
+public/book-assets/*
+
+# Local credentials and editor/runtime files.
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+# Python tooling and generated test/type-check artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+coverage/
+*.tsbuildinfo

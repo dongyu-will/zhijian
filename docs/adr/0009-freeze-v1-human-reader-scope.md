@@ -1,0 +1,3 @@
+# Freeze the V1 human reader scope
+
+The V1 public site is optimized for one task: discover a Catalog Entry, open its book, locate a document, read it continuously, and inspect the corresponding GitHub source. V1 keeps the selected B-style Focus Reader, chapter navigation, current-book search over titles, paths, and source text, previous/next navigation, and standard Markdown rendering; it excludes accounts, personal libraries, progress tracking, editing, grading, recommendations, global search, complex version selection, and a dedicated mobile product experience so the static site remains simple and efficient.

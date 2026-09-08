@@ -1,0 +1,111 @@
+---
+import BookQuote from './BookQuote.astro';
+import { fallbackReadingQuotes } from '../data/reading-quotes';
+---
+<div class="knowledge-sculpture" data-sculpture>
+  <button class="knowledge-page-turn" type="button" data-page-turn aria-label="翻到下一页" disabled>
+    <span class="book-stage" aria-hidden="true">
+      <span class="book-volume">
+        <span class="book-cover"></span>
+        <span class="book-paper-stack"></span>
+        <span class="book-page book-left"><BookQuote quote={fallbackReadingQuotes[0]} /></span>
+        <span class="book-page book-right"><BookQuote quote={fallbackReadingQuotes[1]} /></span>
+        <span class="book-spine"></span>
+        <span class="book-bookmark"></span>
+        <span class="book-leaf" data-book-leaf hidden>
+          <span class="book-face book-face-front"><BookQuote quote={fallbackReadingQuotes[1]} /></span>
+          <span class="book-face book-face-back"><BookQuote quote={fallbackReadingQuotes[2]} /></span>
+        </span>
+      </span>
+    </span>
+  </button>
+  <div class="knowledge-caption"><span data-motion-hint>打开一本书，发现新的可能。</span></div>
+  <p class="knowledge-quote-credit">语句来自<a data-quote-provider href="https://hitokoto.cn/" target="_blank" rel="noopener noreferrer" aria-label="查看一言原句与出处（新窗口）">一言</a>与资料库寄语</p>
+  <p class="sr-only" data-current-quote role="status" aria-live="polite" aria-atomic="true">{fallbackReadingQuotes[1].text} —— {fallbackReadingQuotes[1].source}</p>
+</div>
+<script>
+  import { createQuoteDeck, loadRemoteQuotes } from '../lib/reading-quotes';
+  import type { ReadingQuote } from '../data/reading-quotes';
+
+  const sculpture = document.querySelector<HTMLElement>('[data-sculpture]');
+  const turnButton = sculpture?.querySelector<HTMLButtonElement>('[data-page-turn]');
+  const motionHint = sculpture?.querySelector<HTMLElement>('[data-motion-hint]');
+  const leftPage = sculpture?.querySelector<HTMLElement>('.book-left');
+  const rightPage = sculpture?.querySelector<HTMLElement>('.book-right');
+  const leaf = sculpture?.querySelector<HTMLElement>('[data-book-leaf]');
+  const accessibleQuote = sculpture?.querySelector<HTMLElement>('[data-current-quote]');
+  const providerLink = sculpture?.querySelector<HTMLAnchorElement>('[data-quote-provider]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const deck = createQuoteDeck();
+  let leftQuote = deck.next();
+  let rightQuote = deck.next();
+
+  function paintQuote(container: HTMLElement | null | undefined, quote: ReadingQuote): void {
+    const text = container?.querySelector<HTMLElement>('.book-quote-text');
+    const source = container?.querySelector<HTMLElement>('.book-quote-source');
+    if (text) text.textContent = quote.text;
+    if (source) { source.textContent = quote.source; source.title = quote.source; }
+  }
+
+  if (sculpture && turnButton && leaf) {
+    let frame = 0;
+    let elapsed = 0;
+    let lastTime = 0;
+    let turning = false;
+    let visible = false;
+    let landingQuote = leftQuote;
+    const duration = 650;
+
+    const finishTurn = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      leftQuote = landingQuote;
+      paintQuote(leftPage, leftQuote);
+      leaf.hidden = true;
+      turning = false;
+      turnButton.removeAttribute('aria-disabled');
+      if (motionHint) motionHint.textContent = '点击书页，阅读下一句。';
+      if (accessibleQuote) accessibleQuote.textContent = `${leftQuote.text} —— ${leftQuote.source}。${rightQuote.text} —— ${rightQuote.source}`;
+      if (providerLink) providerLink.href = rightQuote.sourceUrl ?? leftQuote.sourceUrl ?? 'https://hitokoto.cn/';
+    };
+    const draw = (time: number) => {
+      frame = 0;
+      if (!turning || !visible || document.hidden) return;
+      elapsed += Math.min(Math.max(time - lastTime, 0), 50);
+      lastTime = time;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = progress < .5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      leaf.style.transform = `translateZ(2px) rotateY(${-180 * eased}deg)`;
+      if (progress === 1) { finishTurn(); return; }
+      frame = requestAnimationFrame(draw);
+    };
+    const sync = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      lastTime = performance.now();
+      if (turning && visible && !document.hidden) frame = requestAnimationFrame(draw);
+    };
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }).observe(sculpture);
+    document.addEventListener('visibilitychange', sync);
+    reducedMotion.addEventListener('change', () => { if (reducedMotion.matches && turning) finishTurn(); });
+    turnButton.addEventListener('click', () => {
+      if (turning) return;
+      paintQuote(leaf.querySelector<HTMLElement>('.book-face-front'), rightQuote);
+      landingQuote = deck.next();
+      paintQuote(leaf.querySelector<HTMLElement>('.book-face-back'), landingQuote);
+      rightQuote = deck.next();
+      paintQuote(rightPage, rightQuote);
+      turning = true;
+      elapsed = 0;
+      turnButton.setAttribute('aria-disabled', 'true');
+      if (motionHint) motionHint.textContent = '正在翻页…';
+      if (reducedMotion.matches) { finishTurn(); return; }
+      leaf.style.transform = 'translateZ(2px) rotateY(0deg)';
+      leaf.hidden = false;
+      sync();
+    });
+    turnButton.disabled = false;
+    if (motionHint) motionHint.textContent = '点击书页，阅读下一句。';
+    void loadRemoteQuotes((quotes) => deck.add(quotes));
+  }
+</script>

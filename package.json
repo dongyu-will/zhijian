@@ -1,0 +1,51 @@
+{
+  "name": "studyloom",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "tsx --test tests/**/*.test.ts",
+    "validate:catalog": "node scripts/validate-catalog.mjs",
+    "validate:repository": "tsx scripts/validate-repository.ts",
+    "verify": "npm run check && npm test && npm run validate:catalog && npm run build && npm run validate:release",
+    "validate:release": "node scripts/validate-release.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.10",
+    "@lucide/astro": "^1.41.0",
+    "astro": "7.3.1",
+    "function-plot": "^1.25.4",
+    "gray-matter": "4.0.3",
+    "hast-util-sanitize": "^5.0.2",
+    "hast-util-to-html": "9.0.5",
+    "rehype-katex": "7.0.1",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "6.0.0",
+    "rehype-stringify": "10.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-math": "6.0.0",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.1.2",
+    "unified": "11.0.5",
+    "yaml": "2.9.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.1",
+    "tsx": "^4.23.13",
+    "typescript": "6.0.3"
+  },
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "A static Markdown reading library, starting with mathematics exam papers.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dongyu-will/studyloom.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

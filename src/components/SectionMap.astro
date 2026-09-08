@@ -1,0 +1,34 @@
+---
+import { ChevronRight } from '@lucide/astro';
+import type { BuiltBook } from '../lib/book-builder';
+
+interface Props {
+  book: BuiltBook;
+  sourceUrl: string | null;
+  sourcePath: string;
+  markdownUrl: string;
+  concepts: { title: string; id: string; sourcePdfPage?: number }[];
+  currentIndex: number;
+  total: number;
+  firstPdfPage?: number;
+}
+
+const { book, sourceUrl, sourcePath, markdownUrl, concepts, currentIndex, total, firstPdfPage } = Astro.props as Props;
+---
+<div class="focus-drawer right" data-right-drawer inert aria-hidden="true">
+  <aside class="section-map" aria-label="本节索引">
+    <div class="rail-heading"><span>本节</span><button class="icon-button" type="button" data-toggle-right aria-label="收起本节索引"><ChevronRight size={17} stroke-width={1.8} /></button></div>
+    <div class:list={['reading-index', { 'reading-index-intro': currentIndex < 0 }]}>{currentIndex < 0 ? <span>资料简介</span> : <><span>{currentIndex + 1}</span><small>/ {total}</small></>}</div>
+    <p class="map-label">本节标题</p>
+    <ol>{concepts.map((concept, index) => <li data-section-item data-section-id={concept.id} data-pdf-page={concept.sourcePdfPage} class:list={{ 'list-active': index === 0 }}><a data-section-link href={concept.id ? `#${concept.id}` : '#'}>{concept.title}</a></li>)}</ol>
+    <div class="section-source">
+      <span>来源</span>
+      {sourceUrl ? <a href={sourceUrl} target="_blank" rel="noreferrer">查看 GitHub 源文件</a> : <strong class="source-location" title={sourcePath}>{book.origin === 'local' ? '本地文件' : '代码仓库'}：{sourcePath}</strong>}
+      <div class="section-source-actions" aria-label="本章源文件">
+        {book.sourcePdfUrl && <a class="section-source-action" data-source-pdf={book.sourcePdfUrl} data-first-page={firstPdfPage} href={`${book.sourcePdfUrl}${firstPdfPage ? `#page=${firstPdfPage}` : ''}`} target="_blank" rel="noreferrer">{firstPdfPage ? `原 PDF · 第 ${firstPdfPage} 页` : '查看原 PDF'}</a>}
+        <a class="section-source-action" href={markdownUrl} target="_blank" rel="noreferrer">查看 Markdown</a>
+      </div>
+      <span class="source-stars">{book.origin === 'local' ? '本地资源' : book.stars === null ? 'Star 暂不可用' : `${book.stars.toLocaleString('en-US')} Stars`}</span>
+    </div>
+  </aside>
+</div>

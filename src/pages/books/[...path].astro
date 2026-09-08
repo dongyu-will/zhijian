@@ -1,0 +1,256 @@
+---
+import ReaderLayout from '../../layouts/ReaderLayout.astro';
+import { getReadableBooks } from '../../data/book-data';
+import { BookOpen, ChevronRight, Search, X } from '@lucide/astro';
+import ReaderHeader from '../../components/ReaderHeader.astro';
+import ChapterDrawer from '../../components/ChapterDrawer.astro';
+import SectionMap from '../../components/SectionMap.astro';
+import PageTurner from '../../components/PageTurner.astro';
+import { bookContents, readingTitle } from '../../lib/book-presentation';
+
+const books = await getReadableBooks();
+
+export async function getStaticPaths() {
+  const books = await getReadableBooks();
+  return books.flatMap((book) => book.documents.map((document) => ({
+    params: {
+      path: document === book.entryDocument
+        ? book.catalog.slug
+        : `${book.catalog.slug}/${document.sourcePath.replace(/\.(?:md|markdown)$/i, '')}`
+    },
+    props: { book, document }
+  })));
+}
+
+const { book, document } = Astro.props;
+const isEntryDocument = document.sourcePath === book.entryDocument.sourcePath;
+const currentIndex = book.documents.findIndex((item) => item.sourcePath === document.sourcePath);
+const contents = bookContents(book);
+const readingIndex = contents.findIndex((item) => item.sourcePath === document.sourcePath);
+const compactTitle = readingTitle(book, document);
+const previous = book.documents[currentIndex - 1];
+const next = book.documents[currentIndex + 1];
+const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+const bookBase = `${siteBase}/books/${book.catalog.slug}`;
+const markdownUrl = `${siteBase}/books/${book.catalog.slug}/source/${document.sourcePath.split('/').map(encodeURIComponent).join('/')}`;
+const chapterGroups = Array.from(
+  book.documents.reduce((groups, item) => {
+    const directory = item.sourcePath.includes('/') ? item.sourcePath.slice(0, item.sourcePath.indexOf('/')) : '';
+    const documents = groups.get(directory) ?? [];
+    documents.push(item);
+    groups.set(directory, documents);
+    return groups;
+  }, new Map<string, typeof book.documents>())
+).map(([directory, documents]) => ({
+  label: directory ? '目录' : '总览',
+  title: directory === 'chapters' ? '正文目录' : directory || '资料简介',
+  documents
+}));
+
+const hrefFor = (item: typeof document) => item === book.entryDocument
+  ? `${bookBase}/`
+  : `${bookBase}/${item.sourcePath.replace(/\.(?:md|markdown)$/i, '')}/`;
+
+const concepts = document.headings.length > 0
+  ? document.headings.map((heading) => ({ title: heading.title, id: heading.id, sourcePdfPage: heading.sourcePdfPage }))
+  : [{ title: document.title, id: '' }];
+---
+<ReaderLayout title={`${document.title} · ${book.catalog.title}`}>
+  <div class="reader-app" data-reader-root data-book-slug={book.catalog.slug} data-source-path={document.sourcePath} data-reading-title={compactTitle} data-search-url={`${bookBase}/search.json`}>
+    <ReaderHeader title={book.catalog.title} compactTitle={book.catalog.shortTitle ? compactTitle : book.catalog.title} />
+    <div class="reading-progress" data-reading-progress aria-hidden="true"><i></i></div>
+
+    <main class="reader-shell focus" data-reader-shell data-previous-href={previous ? hrefFor(previous) : ''} data-next-href={next ? hrefFor(next) : ''}>
+      <ChapterDrawer book={book} document={document} chapterGroups={chapterGroups} />
+
+      <section class="reading-pane">
+        <article>
+          <header class="article-header">
+            <h1>{document.title}</h1>
+            {isEntryDocument && book.catalog.description ? <p class="dek">{book.catalog.description}</p> : null}
+          </header>
+          <div class="markdown-body" set:html={document.html}></div>
+        </article>
+        {!isEntryDocument && <PageTurner previous={previous} next={next} currentIndex={readingIndex} total={contents.length} hrefFor={hrefFor} />}
+      </section>
+
+    <SectionMap book={book} sourceUrl={document.sourceUrl} sourcePath={document.sourcePath} markdownUrl={markdownUrl} concepts={concepts} currentIndex={isEntryDocument ? -1 : readingIndex} total={contents.length} firstPdfPage={document.sourcePdfPages[0]} />
+    </main>
+
+    <button class="drawer-backdrop" data-drawer-backdrop type="button" aria-label="关闭目录并返回正文" tabindex="-1" hidden></button>
+
+    <div class="overlay" data-library-overlay aria-hidden="true">
+      <section class="drawer library-drawer" role="dialog" aria-modal="true" aria-labelledby="library-title">
+        <div class="drawer-heading"><h2 id="library-title" aria-label="选择一本继续阅读">选择一本继续阅读</h2><button class="icon-button" type="button" data-close-overlay aria-label="关闭书库"><X size={19} stroke-width={1.8} /></button></div>
+        <div class="library-list">
+          {books.map((item) => <a href={`${siteBase}/books/${item.catalog.slug}/`} class:list={{ 'list-active': item.catalog.slug === book.catalog.slug }} aria-current={item.catalog.slug === book.catalog.slug ? 'page' : undefined} aria-label={`打开《${item.catalog.title}》`}><BookOpen size={20} stroke-width={1.7} /><span><small>{item.catalog.author}</small><strong>{item.catalog.title}</strong><em>{item.catalog.description}</em></span>{item.catalog.slug === book.catalog.slug ? <span class="library-current" aria-hidden="true">当前</span> : <ChevronRight size={18} stroke-width={1.8} />}</a>)}
+        </div>
+      </section>
+    </div>
+
+    <div class="overlay search-overlay" data-search-overlay aria-hidden="true">
+      <section class="drawer search-drawer" role="dialog" aria-modal="true" aria-labelledby="search-title">
+        <div class="search-field"><Search size={19} stroke-width={1.8} /><input id="search-title" data-search-input type="search" placeholder={`搜索《${book.catalog.title}》`} aria-label="搜索关键词" /><button class="icon-button" type="button" data-close-overlay aria-label="关闭搜索"><X size={18} stroke-width={1.8} /></button></div>
+        <p class="search-status" data-search-status role="status" aria-live="polite">输入关键词，搜索章节标题和正文。</p>
+        <button class="search-retry" data-search-retry type="button" hidden>重新加载搜索</button>
+        <div class="search-results" data-search-results></div>
+      </section>
+    </div>
+    <div class="toast" data-toast role="status" aria-live="polite">代码已复制</div>
+  </div>
+
+  <script>
+    import { initializeReaderDrawers } from '../../lib/reader-drawers';
+    import { initializeReaderSearch } from '../../lib/reader-search';
+    const root = document.querySelector<HTMLElement>('[data-reader-root]');
+    const drawers = root ? initializeReaderDrawers(root) : null;
+    const search = root ? initializeReaderSearch(root) : null;
+    const functionPlotNodes = [...(root?.querySelectorAll<HTMLElement>('.book-function-plot') ?? [])];
+    const renderFunctionPlots = async () => {
+      if (!functionPlotNodes.length) return;
+      try {
+        const loaded = await import('function-plot') as { default: unknown };
+        const functionPlot = typeof loaded.default === 'function'
+          ? loaded.default
+          : (loaded.default as { default?: unknown } | null)?.default;
+        if (typeof functionPlot !== 'function') throw new Error('function-plot export unavailable');
+        functionPlotNodes.forEach((node) => {
+          const source = node.querySelector('code');
+          try {
+            const config = JSON.parse(source?.textContent ?? '{}') as Record<string, unknown>;
+            source?.remove();
+            (functionPlot as (options: Record<string, unknown>) => unknown)({ ...config, target: node });
+          } catch {
+            node.textContent = '函数图初始化失败';
+            node.classList.add('book-function-plot--error');
+          }
+        });
+      } catch {
+        functionPlotNodes.forEach((node) => {
+          node.textContent = '函数图库加载失败';
+          node.classList.add('book-function-plot--error');
+        });
+      }
+    };
+    void renderFunctionPlots();
+    const right = root?.querySelector<HTMLElement>('[data-right-drawer]');
+    const searchOverlay = root?.querySelector<HTMLElement>('[data-search-overlay]');
+    const libraryOverlay = root?.querySelector<HTMLElement>('[data-library-overlay]');
+    const progressBar = root?.querySelector<HTMLElement>('[data-reading-progress] i');
+    const progressKey = `wiki-reader-position:${root?.dataset.bookSlug ?? 'book'}:${root?.dataset.sourcePath ?? 'document'}`;
+    const lastLocationKey = 'wiki-reader-last-location';
+    let saveFrame = 0;
+    const updateReadingProgress = () => {
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const ratio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+      if (progressBar) progressBar.style.width = `${ratio * 100}%`;
+      return { ratio, scrollY: window.scrollY };
+    };
+    const saveReadingPosition = () => {
+      window.cancelAnimationFrame(saveFrame);
+      saveFrame = window.requestAnimationFrame(() => {
+        try {
+          localStorage.setItem(progressKey, JSON.stringify(updateReadingProgress()));
+          localStorage.setItem(lastLocationKey, JSON.stringify({ href: window.location.href, title: document.title, displayTitle: root?.dataset.readingTitle ?? document.title }));
+        } catch {
+          // Reading still works when local storage is unavailable.
+        }
+      });
+    };
+    const restoreReadingPosition = () => {
+      if (window.location.hash) { updateReadingProgress(); return; }
+      try {
+        const saved = JSON.parse(localStorage.getItem(progressKey) ?? 'null') as { ratio?: number; scrollY?: number } | null;
+        if (!saved) { updateReadingProgress(); return; }
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        const target = typeof saved.ratio === 'number' ? saved.ratio * maxScroll : saved.scrollY ?? 0;
+        window.scrollTo(0, Math.min(maxScroll, Math.max(0, target)));
+      } catch {
+        // Ignore unavailable or malformed local storage.
+      }
+      updateReadingProgress();
+    };
+    let activeOverlay: HTMLElement | null = null;
+    let overlayTrigger: HTMLElement | null = null;
+    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const openOverlay = (overlay: HTMLElement | null | undefined, trigger: HTMLElement | null = null) => {
+      if (!overlay) return;
+      drawers?.closeModal();
+      root?.querySelectorAll<HTMLElement>('.utility-header, [data-reader-shell]').forEach((element) => { element.inert = true; });
+      document.body.classList.add('has-reader-modal');
+      if (overlay === searchOverlay) search?.open();
+      activeOverlay = overlay;
+      overlayTrigger = trigger;
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+      window.setTimeout(() => overlay.querySelector<HTMLElement>('[data-search-input], .library-list a, [data-close-overlay]')?.focus(), 0);
+    };
+    const closeOverlays = () => {
+      root?.querySelectorAll<HTMLElement>('.overlay').forEach((overlay) => { overlay.classList.remove('is-open'); overlay.setAttribute('aria-hidden', 'true'); });
+      root?.querySelectorAll<HTMLElement>('.utility-header, [data-reader-shell]').forEach((element) => { element.inert = false; });
+      document.body.classList.remove('has-reader-modal');
+      const trigger = overlayTrigger;
+      activeOverlay = null;
+      overlayTrigger = null;
+      window.setTimeout(() => trigger?.focus({ preventScroll: true }), 0);
+    };
+    root?.querySelector('[data-open-library]')?.addEventListener('click', (event) => openOverlay(libraryOverlay, event.currentTarget as HTMLElement));
+    root?.querySelector('[data-open-search]')?.addEventListener('click', (event) => openOverlay(searchOverlay, event.currentTarget as HTMLElement));
+    root?.querySelector('[data-search-results]')?.addEventListener('click', (event) => { if ((event.target as Element).closest('a')) closeOverlays(); });
+    root?.querySelectorAll('[data-close-overlay]').forEach((button) => button.addEventListener('click', closeOverlays));
+    root?.querySelectorAll('.overlay').forEach((overlay) => overlay.addEventListener('mousedown', (event) => { if (event.target === overlay) closeOverlays(); }));
+    document.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); openOverlay(searchOverlay, root?.querySelector<HTMLElement>('[data-open-search]')); return; }
+      if (event.key === 'Escape' && activeOverlay) { event.preventDefault(); closeOverlays(); return; }
+      if (activeOverlay && event.key === 'Tab') {
+        const focusables = [...activeOverlay.querySelectorAll<HTMLElement>(focusableSelector)].filter((element) => element.getClientRects().length > 0);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        return;
+      }
+      if (!activeOverlay && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        const target = event.target as HTMLElement | null;
+        if (document.body.classList.contains('has-reader-modal') || target?.closest('button, a, summary, input, textarea, select, [contenteditable]')) return;
+        const href = event.key === 'ArrowLeft' ? root?.querySelector<HTMLElement>('[data-reader-shell]')?.dataset.previousHref : root?.querySelector<HTMLElement>('[data-reader-shell]')?.dataset.nextHref;
+        if (href) { event.preventDefault(); window.location.href = href; }
+      }
+    });
+    root?.querySelectorAll('.markdown-body pre').forEach((pre) => {
+      const frame = document.createElement('div'); frame.className = 'code-frame'; pre.parentElement?.insertBefore(frame, pre); frame.append(pre);
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = '复制'; frame.append(button);
+      button.addEventListener('click', async () => { await navigator.clipboard?.writeText(pre.textContent ?? ''); const toast = root?.querySelector('[data-toast]'); toast?.classList.add('is-visible'); window.setTimeout(() => toast?.classList.remove('is-visible'), 1600); });
+    });
+    const sectionItems = [...(right?.querySelectorAll<HTMLElement>('[data-section-item]') ?? [])];
+    const pdfLink = right?.querySelector<HTMLAnchorElement>('[data-source-pdf]');
+    const sectionHeadings = sectionItems.map((item) => document.getElementById(item.dataset.sectionId ?? '')).filter((heading): heading is HTMLElement => Boolean(heading));
+    const updateSectionActive = () => {
+      if (!sectionHeadings.length) return;
+      const marker = 120;
+      let activeIndex = 0;
+      sectionHeadings.forEach((heading, index) => { if (heading.getBoundingClientRect().top <= marker) activeIndex = index; });
+      sectionItems.forEach((item, index) => item.classList.toggle('list-active', index === activeIndex));
+      const item = sectionItems[activeIndex];
+      if (pdfLink) {
+        const page = item?.dataset.pdfPage || pdfLink.dataset.firstPage;
+        pdfLink.href = `${pdfLink.dataset.sourcePdf}${page ? `#page=${page}` : ''}`;
+        pdfLink.textContent = page ? `原 PDF · 第 ${page} 页` : '查看原 PDF';
+      }
+      const map = right?.querySelector<HTMLElement>('.section-map > ol');
+      if (item && map && right?.classList.contains('is-open')) {
+        const itemRect = item.getBoundingClientRect();
+        const mapRect = map.getBoundingClientRect();
+        if (itemRect.top < mapRect.top) map.scrollTop -= mapRect.top - itemRect.top;
+        else if (itemRect.bottom > mapRect.bottom) map.scrollTop += itemRect.bottom - mapRect.bottom;
+      }
+    };
+    updateSectionActive();
+    window.addEventListener('scroll', updateSectionActive, { passive: true });
+    window.addEventListener('scroll', saveReadingPosition, { passive: true });
+    window.addEventListener('pagehide', saveReadingPosition);
+    window.setTimeout(restoreReadingPosition, 0);
+    window.setTimeout(() => { restoreReadingPosition(); saveReadingPosition(); }, 250);
+  </script>
+</ReaderLayout>

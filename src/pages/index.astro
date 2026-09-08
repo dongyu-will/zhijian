@@ -1,0 +1,150 @@
+---
+import ReaderLayout from '../layouts/ReaderLayout.astro';
+import { getAllBooks } from '../data/book-data';
+import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Search } from '@lucide/astro';
+import '../styles/catalog.css';
+import KnowledgeSculpture from '../components/KnowledgeSculpture.astro';
+import { bookContents } from '../lib/book-presentation';
+import { projectRepository } from '../data/site-data';
+const catalogBooks = await getAllBooks();
+const books = [...catalogBooks].sort((a, b) => a.catalog.title.localeCompare(b.catalog.title, 'zh-CN'));
+const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<ReaderLayout title="公共资料库 · 串联各书的知识" description="从完整阅读出发，逐步串联不同书籍中的知识点，建立自己的理解。">
+  <main class="catalog-home">
+    <a class="catalog-skip" href="#catalog-library">跳到资料列表</a>
+    <header class="catalog-masthead">
+      <a class="catalog-brand" href={`${siteBase}/`} aria-label="公共资料库首页"><BookOpen size={22} stroke-width={1.8} aria-hidden="true" /><span>公共资料库</span></a>
+      <nav aria-label="首页导航">
+        <a href="#catalog-library">浏览资料</a>
+        <a href="#catalog-about">关于与共建<ArrowUpRight size={15} aria-hidden="true" /></a>
+
+      </nav>
+    </header>
+
+    <section class="catalog-intro" aria-labelledby="catalog-title">
+      <div class="catalog-intro-copy">
+        <h1 id="catalog-title">串联各书的知识<br /><span>建立自己的理解</span></h1>
+        <p class="catalog-intro-description">从完整阅读出发，<br />逐步连接不同书籍中的知识点。</p>
+        <div class="catalog-intro-actions">
+          <a class="catalog-primary" href="#catalog-library">浏览资料<ArrowDown size={19} aria-hidden="true" /></a>
+          <a class="catalog-resume" data-resume-link hidden href="#catalog-library"><span>继续阅读<small data-resume-title></small></span><ArrowRight size={17} aria-hidden="true" /></a>
+        </div>
+      </div>
+      <KnowledgeSculpture />
+    </section>
+
+    <section class="catalog-library" id="catalog-library" aria-labelledby="library-title" tabindex="-1">
+      <header class="catalog-library-heading">
+        <h2 id="library-title">资料目录</h2>
+          <p>{books.length} 份资料</p>
+      </header>
+      <div class="catalog-controls" data-catalog-controls hidden>
+        <label class="catalog-search">
+          <Search size={19} stroke-width={1.8} aria-hidden="true" />
+          <span class="sr-only">搜索资料名称或作者</span>
+          <input data-catalog-search type="search" placeholder="搜索资料名称或作者" autocomplete="off" />
+        </label>
+        <label class="catalog-sort"><span>排序</span><select data-catalog-sort aria-label="排序"><option value="title">按名称</option><option value="author">按作者</option><option value="chapters">按内容篇数</option></select></label>
+      </div>
+      <p class="sr-only" data-catalog-results role="status" aria-live="polite" aria-atomic="true"></p>
+      <ul class="catalog-list" data-catalog-list>
+        {books.map((book) => (
+          <li data-book-item data-title={book.catalog.title} data-author={book.catalog.author} data-chapters={bookContents(book).length}>
+            <a class="catalog-book" data-book-root href={`${siteBase}/books/${book.catalog.slug}/`}>
+          <div class="catalog-book-copy">
+            <h3>{book.catalog.title}</h3>
+                {book.catalog.description && <p>{book.catalog.description}</p>}
+              </div>
+              <div class="catalog-book-meta">
+                {book.origin === 'catalog' ? (
+                  <span class="catalog-book-stars" title="仓库 Star 数">{book.stars === null ? '星数暂不可用' : `${book.stars.toLocaleString('en-US')} Star`}</span>
+                ) : (
+                  <span>本地资源</span>
+                )}
+                <span>{bookContents(book).length} {book.catalog.contentUnit ?? '篇内容'}</span>
+              </div>
+              <span class="catalog-book-action">阅读<ArrowUpRight size={19} stroke-width={1.8} aria-hidden="true" /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="catalog-empty" data-catalog-empty hidden={books.length > 0}>
+        <p data-empty-message>{books.length > 0 ? '没有找到匹配的资料。试试其他名称或作者。' : '资料正在整理，暂时还没有公开条目。'}</p>
+        <button type="button" data-clear-search hidden>清除搜索</button>
+      </div>
+    </section>
+
+    <footer class="catalog-about" id="catalog-about" aria-labelledby="about-title">
+      <div>
+        <h2 id="about-title">知识的下一页，<br />也可以由你写下。</h2>
+        <p>首批提供数学一、数学二真题整理文本，仍可能存在识别或排版错误。发现问题，可从阅读页查看 GitHub 原文，提交 Issue 或 PR。</p>
+      </div>
+      <a class="catalog-template" href={`${projectRepository}/blob/main/CONTRIBUTING.md`}>
+        <span>一起完善资料库</span>
+        <strong>查看贡献指南<ArrowUpRight size={17} aria-hidden="true" /></strong>
+      </a>
+    </footer>
+    <div class="catalog-colophon"><a href={`${siteBase}/`}>公共资料库</a><span>保持好奇。持续分享。</span><a href="#catalog-title">回到顶部<ArrowUpRight size={14} aria-hidden="true" /></a></div>
+  </main>
+  <script>
+    import { resolveReadingLocation } from '../lib/reading-location';
+
+    const resumeLink = document.querySelector<HTMLAnchorElement>('[data-resume-link]');
+    const bookRoots = [...document.querySelectorAll<HTMLAnchorElement>('[data-book-root]')].map((link) => link.pathname);
+    try {
+      const saved: unknown = JSON.parse(window.localStorage.getItem('wiki-reader-last-location') ?? 'null');
+      const location = resolveReadingLocation(saved, window.location.origin, bookRoots);
+      if (resumeLink && location) {
+        resumeLink.href = location.href;
+        resumeLink.setAttribute('aria-label', location.title ? `继续阅读《${location.title}》` : '继续阅读');
+        if (location.title) {
+          resumeLink.title = location.title;
+          const label = resumeLink.querySelector('[data-resume-title]');
+          if (label) label.textContent = location.displayTitle ?? location.title.split(' · ')[0];
+        }
+        resumeLink.hidden = false;
+      }
+    } catch {
+      // Storage may be unavailable; the full catalog remains readable.
+    }
+
+    const controls = document.querySelector<HTMLElement>('[data-catalog-controls]');
+    const search = controls?.querySelector<HTMLInputElement>('[data-catalog-search]');
+    const sort = controls?.querySelector<HTMLSelectElement>('[data-catalog-sort]');
+    const list = document.querySelector<HTMLElement>('[data-catalog-list]');
+    const empty = document.querySelector<HTMLElement>('[data-catalog-empty]');
+    const emptyMessage = document.querySelector<HTMLElement>('[data-empty-message]');
+    const clear = document.querySelector<HTMLButtonElement>('[data-clear-search]');
+    const results = document.querySelector<HTMLElement>('[data-catalog-results]');
+    const items = [...document.querySelectorAll<HTMLElement>('[data-book-item]')];
+
+    function updateCatalog(): void {
+      const query = search?.value.trim().toLocaleLowerCase('zh-CN') ?? '';
+      const visible = items.filter((item) => {
+        const matches = !query || `${item.dataset.title} ${item.dataset.author}`.toLocaleLowerCase('zh-CN').includes(query);
+        item.hidden = !matches;
+        return matches;
+      });
+      visible.sort((a, b) => {
+        if (sort?.value === 'chapters') return Number(b.dataset.chapters) - Number(a.dataset.chapters);
+        const key = sort?.value === 'author' ? 'author' : 'title';
+        return (a.dataset[key] ?? '').localeCompare(b.dataset[key] ?? '', 'zh-CN');
+      });
+      visible.forEach((item) => list?.append(item));
+      if (empty) empty.hidden = visible.length > 0;
+      if (clear) clear.hidden = !query;
+      if (emptyMessage && items.length > 0) emptyMessage.textContent = '没有找到匹配的资料。试试其他名称或作者。';
+      if (results) results.textContent = query ? `找到 ${visible.length} 份资料` : `共 ${items.length} 份资料`;
+    }
+
+    search?.addEventListener('input', updateCatalog);
+    sort?.addEventListener('change', updateCatalog);
+    clear?.addEventListener('click', () => {
+      if (search) search.value = '';
+      updateCatalog();
+      search?.focus();
+    });
+    if (controls && items.length > 0) controls.hidden = false;
+  </script>
+</ReaderLayout>

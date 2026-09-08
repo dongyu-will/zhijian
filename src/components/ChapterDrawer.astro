@@ -1,0 +1,31 @@
+---
+import { ChevronLeft, ChevronRight } from '@lucide/astro';
+import type { BuiltBook, BuiltDocument } from '../lib/book-builder';
+
+type ChapterGroup = { label: string; title: string; documents: BuiltDocument[] };
+interface Props {
+  book: BuiltBook;
+  document: BuiltDocument;
+  chapterGroups: ChapterGroup[];
+}
+
+const { book, document, chapterGroups } = Astro.props as Props;
+const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hrefFor = (item: BuiltDocument) => item === book.entryDocument ? `${siteBase}/books/${book.catalog.slug}/` : `${siteBase}/books/${book.catalog.slug}/${item.sourcePath.replace(/\.(?:md|markdown)$/i, '')}/`;
+---
+<div class="focus-drawer left" data-left-drawer inert aria-hidden="true">
+  <aside class="chapter-nav" aria-label="本书目录">
+    <div class="rail-heading"><span>目录</span><button class="icon-button" type="button" data-toggle-left aria-label="收起章节目录"><ChevronLeft size={17} stroke-width={1.8} /></button></div>
+    <div class="guide-meta"><span>{book.catalog.author}</span></div>
+    <nav>
+      {chapterGroups.map((group) => {
+        const hasCurrent = group.documents.some((item) => item.sourcePath === document.sourcePath);
+        const isEntry = document.sourcePath === book.entryDocument.sourcePath;
+        return <details class="chapter-group" open={hasCurrent || isEntry}>
+          <summary class="chapter-label"><ChevronRight class="chapter-disclosure" size={15} stroke-width={1.8} aria-hidden="true" /><strong>{group.title}</strong><span>{group.label}</span></summary>
+          {group.documents.map((item) => <a data-current={item.sourcePath === document.sourcePath ? 'true' : undefined} class:list={{ 'list-active': item.sourcePath === document.sourcePath }} href={hrefFor(item)} aria-current={item.sourcePath === document.sourcePath ? 'page' : undefined} aria-label={item.title}><span title={item.title}>{item.navigationTitle ?? item.title}</span></a>)}
+        </details>;
+      })}
+    </nav>
+  </aside>
+</div>

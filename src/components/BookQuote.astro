@@ -1,0 +1,6 @@
+---
+import type { ReadingQuote } from '../data/reading-quotes';
+interface Props { quote: ReadingQuote }
+const { quote } = Astro.props;
+---
+<span class="book-print book-quote"><span class="book-quote-text">{quote.text}</span><span class="book-quote-source" title={quote.source}>{quote.source}</span></span>

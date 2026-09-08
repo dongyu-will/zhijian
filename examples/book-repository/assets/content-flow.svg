@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="320" viewBox="0 0 960 320" role="img" aria-labelledby="title description">
+  <title id="title">一份 Markdown 服务两类使用者</title>
+  <desc id="description">Markdown 内容分别流向人类阅读页面和 AI 知识接口。</desc>
+  <rect width="960" height="320" rx="28" fill="#f7f4ed"/>
+  <g fill="none" stroke="#aa7a42" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M360 160h100"/>
+    <path d="M460 160l92-74"/>
+    <path d="M460 160l92 74"/>
+  </g>
+  <g fill="#ffffff" stroke="#2d2923" stroke-width="3">
+    <rect x="70" y="94" width="290" height="132" rx="20"/>
+    <rect x="552" y="34" width="338" height="104" rx="20"/>
+    <rect x="552" y="182" width="338" height="104" rx="20"/>
+  </g>
+  <g fill="#2d2923" font-family="system-ui, sans-serif" text-anchor="middle">
+    <text x="215" y="145" font-size="22">规范内容源</text>
+    <text x="215" y="188" font-size="30" font-weight="700">Markdown</text>
+    <text x="721" y="79" font-size="20">人类读者</text>
+    <text x="721" y="112" font-size="25" font-weight="700">阅读页面</text>
+    <text x="721" y="227" font-size="20">AI 消费者</text>
+    <text x="721" y="260" font-size="25" font-weight="700">知识接口</text>
+  </g>
+</svg>

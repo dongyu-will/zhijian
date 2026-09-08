@@ -1,0 +1,21 @@
+---
+import '../styles/reader.css';
+import 'katex/dist/katex.min.css';
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = '公共资料库', description } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

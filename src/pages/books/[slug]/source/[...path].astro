@@ -1,0 +1,36 @@
+---
+import ReaderLayout from '../../../../layouts/ReaderLayout.astro';
+import { getReadableBooks } from '../../../../data/book-data';
+
+export async function getStaticPaths() {
+  const books = await getReadableBooks();
+  return books.flatMap((book) => book.documents.map((document) => ({
+    params: { slug: book.catalog.slug, path: document.sourcePath },
+    props: { book, document }
+  })));
+}
+
+const { book, document } = Astro.props;
+const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+const readerHref = document === book.entryDocument
+  ? `${siteBase}/books/${book.catalog.slug}/`
+  : `${siteBase}/books/${book.catalog.slug}/${document.sourcePath.replace(/\.(?:md|markdown)$/i, '')}/`;
+const sourcePdfUrl = book.sourcePdfUrl && document.sourcePdfPages[0]
+  ? `${book.sourcePdfUrl}#page=${document.sourcePdfPages[0]}`
+  : book.sourcePdfUrl;
+---
+<ReaderLayout title={`Markdown 源稿 · ${document.title}`}>
+  <main class="source-viewer">
+    <div class="source-viewer-inner">
+      <header class="source-viewer-header">
+        <div class="source-viewer-actions">
+          <a href={readerHref}>返回阅读</a>
+          {sourcePdfUrl ? <a href={sourcePdfUrl} target="_blank" rel="noreferrer">打开本章源 PDF</a> : null}
+        </div>
+        <h1>{document.title}</h1>
+        <p>Markdown 源稿：{document.sourcePath}</p>
+      </header>
+      <pre class="source-markdown"><code>{document.sourceMarkdown}</code></pre>
+    </div>
+  </main>
+</ReaderLayout>

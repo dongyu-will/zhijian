@@ -1,0 +1,19 @@
+---
+import { ChevronDown, House, Menu, PanelRight, Search } from '@lucide/astro';
+import ReaderSettings from './ReaderSettings.astro';
+interface Props {
+  title: string;
+  compactTitle?: string;
+}
+
+const { title, compactTitle = title } = Astro.props as Props;
+const siteBase = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<header class="utility-header">
+  <button class="icon-button" type="button" data-toggle-left aria-label="打开或收起章节目录" aria-expanded="true"><Menu size={19} stroke-width={1.8} /></button>
+  <a class="icon-button home-link" href={`${siteBase}/`} aria-label="返回首页" title="返回首页"><House size={18} stroke-width={1.8} /></a>
+  <button class="book-identity" type="button" data-open-library aria-label="打开书库" title={title}><span>{compactTitle}</span><ChevronDown size={15} stroke-width={1.8} /></button>
+  <button class="search-trigger" type="button" data-open-search aria-label="搜索本书"><Search size={17} stroke-width={1.8} /><span>搜索本书</span><kbd>⌘ K</kbd></button>
+  <ReaderSettings />
+  <button class="icon-button right-panel-button" type="button" data-toggle-right aria-label="打开或收起本节索引" aria-expanded="true"><PanelRight size={18} stroke-width={1.8} /></button>
+</header>

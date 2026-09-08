@@ -1,0 +1,19 @@
+---
+import { ChevronLeft, ChevronRight } from '@lucide/astro';
+import type { BuiltDocument } from '../lib/book-builder';
+
+interface Props {
+  previous?: BuiltDocument;
+  next?: BuiltDocument;
+  currentIndex: number;
+  total: number;
+  hrefFor: (item: BuiltDocument) => string;
+}
+
+const { previous, next, currentIndex, total, hrefFor } = Astro.props as Props;
+---
+<footer class="page-turner">
+  {previous ? <a href={hrefFor(previous)} title={`上一节：${previous.title}`} aria-label={`上一节：${previous.title}`}><ChevronLeft size={18} stroke-width={1.8} /><span>{previous.navigationTitle ?? previous.title}</span></a> : <span class="page-turner-link list-disabled" aria-disabled="true"><ChevronLeft size={18} stroke-width={1.8} /><span>已是第一节</span></span>}
+<span class="position"><i style={`width: ${((currentIndex + 1) / total) * 100}%`}></i>{currentIndex + 1} / {total}</span>
+  {next ? <a class="next" href={hrefFor(next)} title={`下一节：${next.title}`} aria-label={`下一节：${next.title}`}><span>{next.navigationTitle ?? next.title}</span><ChevronRight size={18} stroke-width={1.8} /></a> : <span class="page-turner-link next list-disabled" aria-disabled="true"><span>已是最后一节</span><ChevronRight size={18} stroke-width={1.8} /></span>}
+</footer>
