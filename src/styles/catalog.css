@@ -32,8 +32,8 @@
 .catalog-masthead nav { display: flex; gap: 36px; }
 .catalog-masthead nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; text-decoration: none; }
 .catalog-masthead nav a:hover { text-decoration: underline; }
-.catalog-github-placeholder { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; margin-left: 4px; color: var(--home-muted); border: 1px dashed var(--home-rule-strong); border-radius: 50%; }
-.catalog-github-placeholder svg { width: 17px; height: 17px; fill: currentColor; }
+.catalog-masthead nav .catalog-github { justify-content: center; min-width: 44px; flex-shrink: 0; }
+.catalog-masthead nav .catalog-github:hover { color: var(--home-accent); }
 .catalog-intro { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 500px; gap: 32px; align-items: center; min-height: 0; padding: 48px var(--home-gutter); }
 .catalog-intro-copy { position: relative; z-index: 1; padding: 0; }
 .catalog-intro h1 { margin: 0; font-size: clamp(48px, 4.4vw, 60px); line-height: 1.25; font-weight: 750; letter-spacing: -.025em; }
@@ -128,6 +128,7 @@
   .catalog-masthead nav { gap: 16px; }
   .catalog-masthead nav a { font-size: 12px; }
   .catalog-masthead nav svg { display: none; }
+  .catalog-masthead nav .catalog-github svg { display: block; }
   .catalog-intro { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: 28px; padding-bottom: 28px; }
   .catalog-intro h1 { font-size: 40px; }
   .catalog-intro-description { margin-top: 12px; font-size: 14px; }
